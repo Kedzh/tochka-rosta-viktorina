@@ -195,24 +195,19 @@
   .medal{font-size:clamp(56px,6vw,110px);text-align:center;line-height:1}
   .prize{margin-top:18px;font-size:clamp(18px,1.5vw,29px);font-weight:800;color:#ffd76b;text-align:center}
 
-  /* ---------- BOARD ---------- */
-  .board{width:min(1150px,100%)}
-  .podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(10px,1.2vw,22px);align-items:end;margin-bottom:22px}
-  .pod{border-radius:20px;padding:clamp(12px,1.1vw,22px);text-align:center;
-    background:rgba(255,255,255,.08);border:3px solid rgba(255,255,255,.18)}
-  .pod .pl{font-size:clamp(30px,2.8vw,58px);font-weight:900}
-  .pod .pn{font-size:clamp(15px,1.15vw,23px);font-weight:800;line-height:1.2;margin:6px 0 4px}
-  .pod .ps{font-size:clamp(14px,1vw,21px);opacity:.85;font-weight:700}
-  .pod .pp{font-size:clamp(12px,.85vw,17px);margin-top:8px;color:#ffd76b;font-weight:800}
-  .pod.p1{background:linear-gradient(160deg,rgba(255,201,60,.32),rgba(255,201,60,.08));border-color:#ffc93c;padding-top:clamp(20px,2vw,40px)}
-  .pod.p2{border-color:#cfd8e6}
-  .pod.p3{border-color:#e0a06a}
-  .empty{text-align:center;font-size:clamp(17px,1.3vw,26px);opacity:.75;padding:30px}
-  table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.05vw,21px)}
-  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.14)}
-  th{font-size:.85em;text-transform:uppercase;letter-spacing:.6px;opacity:.65;font-weight:800}
-  td.n{text-align:right;font-weight:900;width:80px}
-  td.n.top{color:#ffc93c}
+  /* ---------- ОТПРАВКА РЕЗУЛЬТАТА ---------- */
+  .sendbox{margin-top:18px}
+  .sendstat{font-size:clamp(15px,1.15vw,23px);font-weight:800;text-align:center;color:#c3cfe8;
+    display:flex;align-items:center;justify-content:center;gap:10px}
+  .sendstat.ok{color:#8ef08e}
+  .sendstat.err{color:#ffb3ad}
+  .sendstat::before{content:'⏳';font-size:1.15em}
+  .sendstat.ok::before{content:'✅'}
+  .sendstat.err::before{content:'⚠️'}
+  .sendmanual{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  .sendmanual-txt{font-size:clamp(14px,1.05vw,20px);background:rgba(255,255,255,.08);
+    border:2px dashed rgba(255,255,255,.25);border-radius:12px;padding:11px 16px;
+    font-weight:700;letter-spacing:.4px;user-select:text;overflow-wrap:anywhere;text-align:center}
 
   /* ---------- KEY ---------- */
   .key{width:min(1400px,100%);font-size:clamp(13px,.9vw,18px);user-select:text}
@@ -238,7 +233,6 @@
     .opts.cols2,.opts.two{grid-template-columns:1fr}
     .faces{grid-template-columns:1fr}
     .pieces{grid-template-columns:1fr 1fr}
-    .podium{grid-template-columns:1fr}
   }
 
   /* ==================================================
@@ -309,23 +303,7 @@
     .medal{font-size:54px}
     .big{font-size:62px}
     .big small{font-size:.3em}
-    .prize{font-size:17px;margin-top:12px}
-
-    /* таблица */
-    .board{width:100%}
-    .podium{grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
-    .pod{padding:10px 6px;border-radius:14px}
-    .pod.p1{padding-top:16px}
-    .pod .pl{font-size:30px}
-    .pod .pn{font-size:12px;line-height:1.15;margin:4px 0 3px;overflow-wrap:anywhere}
-    .pod .ps{font-size:10px}
-    .pod .pp{font-size:9px;margin-top:5px}
-    table{table-layout:fixed;font-size:13px}
-    th,td{padding:8px 4px;overflow-wrap:anywhere;word-break:break-word}
-    th{font-size:10px;letter-spacing:.2px}
-    th:nth-child(1),td:nth-child(1){width:38px}
-    th:nth-child(3),td:nth-child(3){width:46px}
-    th:nth-child(4),td:nth-child(4){width:48px;text-align:right}
+    .sendmanual-txt{font-size:14px;padding:10px 12px}
 
     /* ключ */
     .key{width:100%;font-size:13px}
@@ -347,11 +325,10 @@
   @media print{
     body{background:#fff;color:#000;overflow:visible}
     .stage{height:auto}
-    .btn,.topbar,.row{display:none}
+    .btn,.topbar,.row,.sendbox{display:none}
     .screen{position:static;display:none;padding:0}
     .screen.on{display:block}
-    .card,.pod{color:#000;background:#fff;border:1px solid #999;box-shadow:none}
-    .pod .pp{color:#a07000}
+    .card{color:#000;background:#fff;border:1px solid #999;box-shadow:none}
     .key .k .aa{color:#a07000}
     .key .k .no{color:#3f7a0a}
   }
@@ -387,7 +364,6 @@
         </div>
         <div class="row">
           <button class="btn" id="bStart">Начать викторину</button>
-          <button class="btn ghost small" id="bBoard">Таблица результатов</button>
           <button class="btn ghost small" id="bKey">Ключ ответов (учителю)</button>
         </div>
         <div class="note">
@@ -435,31 +411,18 @@
         <div class="big" id="resScore">0<small> / 22</small></div>
         <h2 id="resName" style="margin-top:10px"></h2>
         <p class="lead small" id="resText" style="margin-top:14px"></p>
-        <div class="prize" id="resPrize"></div>
+        <div class="sendbox" id="sendBox">
+          <div class="sendstat" id="sendStat">Отправляем результат…</div>
+          <div class="sendmanual" id="sendManual" hidden>
+            <div class="sendmanual-txt" id="sendManualTxt"></div>
+            <button class="btn ghost small" id="bCopy">📋 Скопировать строку</button>
+          </div>
+        </div>
         <div class="row">
           <button class="btn" id="bNextPart">Следующий участник →</button>
-          <button class="btn ghost" id="bBoard2">Таблица результатов</button>
+          <button class="btn ghost" id="bRetry" hidden>🔁 Отправить ещё раз</button>
           <button class="btn ghost small" id="bKey2">Ключ ответов</button>
         </div>
-      </div>
-    </section>
-
-    <!-- ================= ТАБЛИЦА ================= -->
-    <section class="screen" id="sBoard">
-      <h2 style="margin-bottom:20px">🏆 Таблица результатов</h2>
-      <div class="board">
-        <div class="podium" id="podium"></div>
-        <table>
-          <thead><tr><th>№</th><th>Участник</th><th>Кл.</th><th style="text-align:right">Баллы</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="row">
-        <button class="btn" id="bAgain">➕ Ещё участник</button>
-        <button class="btn ghost" id="bPrint">🖨 Распечатать</button>
-        <button class="btn ghost small" id="bKey3">Ключ ответов</button>
-        <button class="btn ghost small" id="bWipe">🗑 Очистить всё</button>
-        <button class="btn ghost small" id="bTitle">На главный экран</button>
       </div>
     </section>
 
@@ -633,38 +596,34 @@ const SVG_BISHOP = `<svg viewBox="0 0 120 140" aria-hidden="true">
   <path d="M20 117h80a6 6 0 0 1 6 6v5a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3v-5a6 6 0 0 1 6-6z"/>
 </svg>`;
 
+/* =========================================================
+   КУДА СВОДИТЬСЯ РЕЗУЛЬТАТЫ
+   ---------------------------------------------------------
+   GitHub Pages — статический сайт, у него нет своего сервера,
+   поэтому напрямую писать в Яндекс.Таблицу из браузера нельзя:
+   нужен секретный ключ, а любой ключ в коде страницы виден всем.
+
+   Решение — маленькая «прокладка» (serverless-функция), которая
+   держит ключ у себя на сервере. Ссылку на неё вставляем сюда:
+
+       const CONFIG = { submitUrl: 'https://...' };
+
+   Подойдёт ЛЮБОЙ адрес, принимающий POST с JSON:
+     { "name":"...", "cls":"...", "score":22, "total":22, "ts":"..." }
+
+   Пока submitUrl пустой — викторина не ломается: показывает строку
+   результата, её можно скопировать и вставить в таблицу вручную.
+   ========================================================= */
+const CONFIG = {
+  submitUrl: ''            // ← вставьте ссылку на свою функцию-приёмник
+};
+
 /* ======================= СОСТОЯНИЕ ======================= */
-const LS_KEY = 'tochka_rosta_quiz_v1';
-let state = { idx:0, picked:[], checked:false, correct:0, name:'', cls:'', people:[], back:'sTitle' };
+let state = { idx:0, picked:[], checked:false, correct:0, name:'', cls:'' };
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); $(id).classList.add('on'); };
-const loadPeople = () => { try { state.people = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch(e){ state.people = []; } };
-const savePeople = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state.people)); } catch(e){} };
-loadPeople();
-
-/* ======================= ЭКРАН: ТАБЛИЦА ======================= */
-function renderBoard(){
-  const list = [...state.people].sort((a,b) => b.score - a.score || a.ts - b.ts);
-  $('podium').innerHTML = '';
-  const places = [[1,'🥇','1 место','p1'],[2,'🥈','2 место','p2'],[3,'🥉','3 место','p3']];
-  for (const [i,em,txt,cls] of places){
-    const p = list[i-1];
-    const d = document.createElement('div');
-    d.className = 'pod '+cls;
-    d.innerHTML = `<div class="pl">${em}</div>
-      <div class="pn">${p ? esc(p.name) : '—'}</div>
-      <div class="ps">${p ? esc(p.cls)+' класс · '+p.score+' из '+TOTAL : 'место пока свободно'}</div>
-      <div class="pp">${p && i<=3 ? '🏅 ПАМЯТНЫЙ ПРИЗ' : ''}</div>`;
-    $('podium').appendChild(d);
-  }
-  $('tbody').innerHTML = list.length ? list.map((p,i) =>
-    `<tr><td class="n ${i<3?'top':''}">${i+1}</td><td>${esc(p.name)}</td><td>${esc(p.cls)}</td>
-     <td class="n ${i<3?'top':''}">${p.score}</td></tr>`).join('')
-    : `<tr><td colspan="4" class="empty">Участников пока нет. Нажми «Ещё участник».</td></tr>`;
-  return list;
-}
 
 /* ======================= ЭКРАН: КЛЮЧ ======================= */
 function renderKey(){
@@ -782,43 +741,68 @@ $('bNext').onclick = () => {
   }
 };
 
+
+/* ======================= ОТПРАВКА ======================= */
+function stamp(){
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+
+async function sendResult(){
+  const payload={ name:state.name, cls:state.cls, score:state.correct, total:TOTAL, ts:stamp() };
+  const line = payload.ts+' | '+payload.cls+' класс | '+payload.name+' | '+payload.score+' из '+payload.total;
+  const stat=$('sendStat'), box=$('sendManual');
+  stat.className='sendstat'; box.hidden=true; $('bRetry').hidden=true;
+
+  if(!CONFIG.submitUrl){
+    stat.className='sendstat err';
+    stat.textContent='Автоотправка не настроена — скопируйте строку в таблицу';
+    $('sendManualTxt').textContent=line; box.hidden=false; return;
+  }
+  stat.textContent='Отправляем результат…';
+  try{
+    const res = await fetch(CONFIG.submitUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    stat.className='sendstat ok';
+    stat.textContent='Результат записан в таблицу ✅';
+  }catch(err){
+    stat.className='sendstat err';
+    stat.textContent='Не отправилось ('+err.message+') — скопируйте строку вручную';
+    $('sendManualTxt').textContent=line; box.hidden=false; $('bRetry').hidden=false;
+  }
+}
+
 function finish(){
   $('topbar').classList.remove('on');
-  const me = { name: state.name, cls: state.cls, score: state.correct, ts: Date.now() };
-  state.people.push(me);
-  savePeople();
   const pct = state.correct / TOTAL;
-  $('resName').textContent = `${state.name}, ${state.cls} класс`;
-  $('resScore').innerHTML = `${state.correct}<small> / ${TOTAL}</small>`;
-  const board = [...state.people].sort((a,b)=> b.score-a.score || a.ts-b.ts);
-  const place = board.findIndex(p => p.ts === me.ts) + 1;
-  $('resMedal').textContent = state.correct === TOTAL ? '👑' : (state.correct >= 19 ? '🥇' : (state.correct >= 15 ? '🎖' : '💪'));
-  let txt = place>0 && place<=3 ? 'Ты на подиуме — приз уже твой!' :
-            (pct>=0.7 ? 'Отличный результат! Так держать!' :
-             (pct>=0.5 ? 'Хорошо! Есть куда расти — приходи в кружки!' : 'С возвращением в «Точку роста» — узнаем больше!'));
-  $('resText').textContent = txt;
-  $('resPrize').textContent = (place>0 && place<=3) ? '🏅 ПАМЯТНЫЙ ПРИЗ' : '';
+  $('resName').textContent = state.name+', '+state.cls+' класс';
+  $('resScore').innerHTML = state.correct+'<small> / '+TOTAL+'</small>';
+  $('resMedal').textContent = state.correct===TOTAL ? '👑' : (state.correct>=19 ? '🥇' : (state.correct>=15 ? '🎖' : '💪'));
+  $('resText').textContent =
+    state.correct===TOTAL ? 'Идеально! Все вопросы — верно!' :
+    (pct>=0.8 ? 'Отличный результат! Так держать!' :
+     (pct>=0.5 ? 'Хорошо! Есть куда расти — приходи в кружки!' :
+                 'С возвращением в «Точку роста» — узнаем больше!'));
   show('sRes');
+  sendResult();
 }
 
 /* ======================= НАВИГАЦИЯ ======================= */
 $('bNextPart').onclick = startReg;
-$('bAgain').onclick   = startReg;
-$('bBoard').onclick = $('bBoard2').onclick = () => { renderBoard(); show('sBoard'); };
-$('bKey').onclick = $('bKey2').onclick = $('bKey3').onclick = () => { renderKey(); state.back = current(); show('sKey'); };
+$('bRetry').onclick = sendResult;
+$('bCopy').onclick = async () => {
+  const t = $('sendManualTxt').textContent;
+  try { await navigator.clipboard.writeText(t); $('bCopy').textContent='✅ Скопировано'; }
+  catch { $('bCopy').textContent='Выделите текст и скопируйте'; }
+  setTimeout(()=> $('bCopy').textContent='📋 Скопировать строку', 2000);
+};
+$('bKey').onclick = $('bKey2').onclick = () => { renderKey(); state.back = current(); show('sKey'); };
 $('bKeyClose').onclick = () => show(state.back);
-$('bPrint').onclick = () => window.print();
 $('bKeyPrint').onclick = () => window.print();
-$('bKeyExp').onclick = e => {
-  const on = $('keyBox').classList.toggle('exp');
-  e.target.textContent = on ? '💬 Скрыть пояснения' : '💬 Показать пояснения';
-};
-$('bTitle').onclick = () => show('sTitle');
-$('bWipe').onclick = () => {
-  if (confirm('Очистить все результаты участников? Это нельзя отменить.')) {
-    state.people = []; savePeople(); renderBoard();
-  }
-};
 function current(){ const el = document.querySelector('.screen.on'); return el ? el.id : 'sTitle'; }
 
 document.addEventListener('keydown', e => {
