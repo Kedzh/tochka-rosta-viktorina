@@ -24,7 +24,7 @@
 // ID таблицы. Он виден в ссылке:
 //   https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h/edit?usp=sharing
 //                            ^^^^^^^^^^^^^^^^^^^^^^ вот он
-const SHEET_ID = 'ВСТАВЬТЕ_СЮДА_ID_ТАБЛИЦЫ';
+const SHEET_ID = '1xHKN4Bsh_KUsSkShLqXyVcwYG8yLx3MXJX5HliBkRCs';
 
 // Имя листа. Если переименуете — поменяйте и здесь.
 const SHEET_NAME = 'Ответы';
