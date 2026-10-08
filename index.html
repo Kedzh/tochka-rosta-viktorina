@@ -601,22 +601,34 @@ const SVG_BISHOP = `<svg viewBox="0 0 120 140" aria-hidden="true">
    КУДА СВОДИТЬСЯ РЕЗУЛЬТАТЫ
    ---------------------------------------------------------
    GitHub Pages — статический сайт, у него нет своего сервера,
-   поэтому напрямую писать в Яндекс.Таблицу из браузера нельзя:
+   поэтому напрямую писать в таблицу из браузера нельзя:
    нужен секретный ключ, а любой ключ в коде страницы виден всем.
 
-   Решение — маленькая «прокладка» (serverless-функция), которая
-   держит ключ у себя на сервере. Ссылку на неё вставляем сюда:
+   Нужна маленькая «прокладка» — приёмник, который держит ключ у себя.
+   Два готовых варианта, оба описаны в README:
 
-       const CONFIG = { submitUrl: 'https://...' };
+     • Google Apps Script  — проще всего, 6 шагов, без ключей и серверов
+     • Yandex Cloud Function — если нужна именно Яндекс.Таблица
 
-   Подойдёт ЛЮБОЙ адрес, принимающий POST с JSON:
-     { "name":"...", "cls":"...", "score":22, "total":22, "ts":"..." }
+   Приёмник получает POST с JSON:
+     { "name":"...", "cls":"...", "score":22, "total":22,
+       "secs":143, "ts":"09.10.2026 14:30" }
 
    Пока submitUrl пустой — викторина не ломается: показывает строку
    результата, её можно скопировать и вставить в таблицу вручную.
    ========================================================= */
 const CONFIG = {
-  submitUrl: ''            // ← вставьте ссылку на свою функцию-приёмник
+  // Куда слать результат. Подойдёт ЛЮБОЙ из вариантов:
+  //   • Google Apps Script:  https://script.google.com/macros/s/XXXX/exec
+  //   • Yandex Cloud Function: https://xxxx.run.yandexcloud.net
+  submitUrl: '',
+
+  // 'no-cors'  — не требует настройки CORS на приёмнике, подходит для
+  //              Google Apps Script и большинства вебхуков. Ответ сервера
+  //              не читается, поэтому мы не можем отличить успех от ошибки.
+  // 'cors'    — приёмник отдаёт CORS-заголовки, тогда викторина покажет
+  //              подтверждение или ошибку. Годится для Yandex Cloud Function.
+  corsMode: 'no-cors'
 };
 
 /* ======================= СОСТОЯНИЕ ======================= */
@@ -765,15 +777,20 @@ async function sendResult(){
     $('sendManualTxt').textContent=line; box.hidden=false; return;
   }
   stat.textContent='Отправляем результат…';
+  const strict = CONFIG.corsMode === 'cors';
   try{
     const res = await fetch(CONFIG.submitUrl,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      mode: strict ? 'cors' : 'no-cors',
+      headers: strict ? { 'Content-Type':'application/json' }
+                      : { 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
-    if(!res.ok) throw new Error('HTTP '+res.status);
+    if (strict && !res.ok) throw new Error('HTTP '+res.status);
     stat.className='sendstat ok';
-    stat.textContent='Результат записан в таблицу ✅';
+    stat.textContent = strict
+      ? 'Результат записан в таблицу ✅'
+      : 'Результат отправлен в таблицу ✅';
   }catch(err){
     stat.className='sendstat err';
     stat.textContent='Не отправилось ('+err.message+') — скопируйте строку вручную';
