@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d1730">
+<meta name="description" content="Викторина «Что ты знаешь о Точке роста?» — ЦОЦ и ГП Точка роста, МКОУ «Усть-Кудинская СОШ»">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Что ты знаешь о «Точке роста»? — викторина</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="favicon.svg">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+  :root{
+    --green:#7cc22b; --green-d:#4e8c12; --navy:#101b3a; --navy2:#1b2c5c;
+    --gold:#ffc93c; --red:#e74c3c;
+  }
+  html,body{height:100%}
+  body{
+    background:linear-gradient(160deg,#0d1730 0%,#16265a 45%,#0f3a2a 100%);
+    background-attachment:fixed;
+    color:#fff; overflow:hidden; user-select:none;
+    -webkit-user-select:none; -webkit-touch-callout:none;
+  }
+  .stage{position:relative;width:100vw;height:100vh;height:100dvh;
+    display:flex;flex-direction:column;max-width:100%;overflow:hidden}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    display:none;align-items:center;gap:22px;
+    padding:14px 34px;background:rgba(6,12,30,.55);backdrop-filter:blur(6px);
+    border-bottom:2px solid rgba(255,255,255,.12);flex:0 0 auto;
+  }
+  .topbar.on{display:flex}
+  .qnum{font-size:26px;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+  .qnum b{color:var(--green);font-size:30px}
+  .bar{flex:1;height:14px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
+  .bar>i{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--green),#a6e22e);transition:width .35s ease}
+  .score{font-size:24px;font-weight:800;background:rgba(124,194,43,.18);
+    border:2px solid rgba(124,194,43,.5);padding:4px 18px;border-radius:99px;white-space:nowrap}
+
+  /* ---------- SCREENS ---------- */
+  .screens{flex:1;position:relative;overflow:hidden;min-height:0}
+  .screen{position:absolute;inset:0;display:none;flex-direction:column;
+    align-items:center;justify-content:center;padding:34px 5vw;overflow-y:auto;
+    -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+    padding-bottom:max(34px,env(safe-area-inset-bottom));
+    padding-top:max(34px,env(safe-area-inset-top))}
+  .screen.on{display:flex}
+
+  /* ---------- ТАП ПО ПАЛЬЦУ ---------- */
+  .btn,.opt,.face,.piece,.cls button,td{
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
+
+  h1{font-size:clamp(38px,4.4vw,74px);line-height:1.06;font-weight:900;text-align:center}
+  h2{font-size:clamp(26px,2.4vw,44px);font-weight:800;text-align:center;line-height:1.15}
+  .lead{font-size:clamp(17px,1.35vw,28px);line-height:1.5;text-align:center;max-width:1200px;color:#dfe8ff}
+  .lead.small{font-size:clamp(15px,1.1vw,23px);color:#c3cfe8}
+
+  .card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14);
+    border-radius:26px;padding:clamp(20px,2vw,42px);max-width:1350px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .card.title{background:linear-gradient(150deg,rgba(124,194,43,.2),rgba(255,255,255,.06))}
+
+  .emoji-top{font-size:clamp(38px,4vw,70px);text-align:center;margin-bottom:10px;letter-spacing:6px}
+  .quizname{text-align:center;margin:18px 0 22px;font-weight:900;
+    font-size:clamp(26px,2.9vw,54px);
+    background:linear-gradient(90deg,#c8f15a,#7cc22b,#ffe066);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:6px}
+  .chip{font-size:clamp(14px,1.05vw,21px);font-weight:700;padding:8px 18px;border-radius:99px;
+    background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.18)}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    font-family:inherit;font-size:clamp(17px,1.35vw,27px);font-weight:800;cursor:pointer;
+    padding:16px 40px;border-radius:16px;border:none;color:#0f2a06;
+    background:linear-gradient(180deg,#a6e22e,#6fb51f);box-shadow:0 6px 0 #4c8212,0 12px 26px rgba(0,0,0,.35);
+    transition:transform .08s ease,box-shadow .08s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #4c8212}
+  .btn.ghost{background:rgba(255,255,255,.1);color:#fff;border:2px solid rgba(255,255,255,.28);
+    box-shadow:none;font-weight:700}
+  .btn.ghost:active{transform:translateY(2px);box-shadow:none}
+  .btn.small{font-size:clamp(14px,1.05vw,20px);padding:10px 24px;box-shadow:0 4px 0 #4c8212}
+  .btn[disabled]{opacity:.35;cursor:not-allowed;transform:none!important}
+  .row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+
+  /* ---------- REGISTRATION ---------- */
+  .reg{display:flex;flex-direction:column;gap:18px;width:min(760px,100%);margin-top:8px}
+  .reg label{font-size:clamp(16px,1.2vw,25px);font-weight:700;opacity:.9}
+  .reg input{
+    font-family:inherit;font-size:clamp(20px,1.7vw,34px);font-weight:700;color:#12203f;
+    padding:14px 20px;border-radius:14px;border:3px solid rgba(255,255,255,.5);background:#fff;width:100%;
+  }
+  .reg input:focus{outline:none;border-color:var(--green)}
+  .cls{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px}
+  .cls button{font-family:inherit;font-size:clamp(17px,1.3vw,26px);font-weight:800;cursor:pointer;
+    padding:12px 8px;border-radius:12px;border:3px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.08);color:#fff}
+  .cls button.sel{background:var(--green);color:#12203f;border-color:var(--green)}
+  .err{color:#ffb3ad;font-size:clamp(15px,1.05vw,21px);font-weight:700;text-align:center;min-height:1.2em}
+
+  /* ---------- QUESTION ---------- */
+  .qtext{font-size:clamp(24px,2.35vw,48px);font-weight:800;line-height:1.22;text-align:center;
+    max-width:1400px;margin-bottom:8px}
+  .qmeta{display:flex;gap:14px;justify-content:center;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+  .tag{font-size:clamp(13px,.95vw,19px);font-weight:800;padding:6px 16px;border-radius:99px;
+    background:rgba(124,194,43,.2);border:2px solid rgba(124,194,43,.45)}
+  .tag.grey{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25)}
+
+  .opts{display:grid;gap:14px;width:min(1150px,100%);margin-top:6px}
+  .opts.cols2{grid-template-columns:1fr 1fr}
+  .opts.two{grid-template-columns:1fr 1fr;width:min(950px,100%)}
+  .opt{
+    display:flex;align-items:center;gap:18px;cursor:pointer;text-align:left;
+    font-family:inherit;font-size:clamp(18px,1.5vw,31px);font-weight:600;color:#fff;
+    padding:clamp(12px,1.1vw,22px) clamp(16px,1.4vw,28px);border-radius:18px;
+    background:rgba(255,255,255,.09);border:3px solid rgba(255,255,255,.2);
+    transition:background .12s ease,border-color .12s ease,transform .08s ease;
+  }
+  .opt:hover{background:rgba(255,255,255,.16)}
+  .opt:active{transform:scale(.99)}
+  .opt .mark{
+    flex:0 0 auto;width:clamp(38px,2.4vw,54px);height:clamp(38px,2.4vw,54px);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(17px,1.3vw,27px);
+    background:rgba(255,255,255,.14);border:3px solid rgba(255,255,255,.3)
+  }
+  .opt.sel{background:rgba(124,194,43,.28);border-color:var(--green)}
+  .opt.sel .mark{background:var(--green);color:#12203f;border-color:var(--green)}
+  .opt.ok{background:rgba(46,204,113,.34);border-color:#2ecc71}
+  .opt.ok .mark{background:#2ecc71;color:#062b14;border-color:#2ecc71}
+  .opt.no{background:rgba(231,76,60,.32);border-color:var(--red)}
+  .opt.no .mark{background:var(--red);color:#fff;border-color:var(--red)}
+  .opt.lock{cursor:default}
+  .opt.miss{border-style:dashed;opacity:.85}
+  .face.miss,.piece.miss{border-style:dashed;opacity:.85}
+
+  /* ---------- PHOTOS ---------- */
+  .faces{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.4vw,28px);
+    width:min(1000px,100%);margin-top:8px}
+  .face{cursor:pointer;border-radius:20px;padding:12px;background:rgba(255,255,255,.09);
+    border:3px solid rgba(255,255,255,.2);transition:.12s;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:10px;font-family:inherit;color:#fff}
+  .face:hover{background:rgba(255,255,255,.16)}
+  .face .pic{width:100%;aspect-ratio:3/4;border-radius:14px;overflow:hidden;
+    background:linear-gradient(160deg,#3b4d80,#1b2c5c);display:flex;align-items:center;justify-content:center}
+  .face .pic img{width:100%;height:100%;object-fit:cover;display:block}
+  .face .ph{font-size:clamp(48px,5vw,104px);opacity:.5}
+  .face .nm{font-size:clamp(15px,1.15vw,23px);font-weight:800;line-height:1.2}
+  .face .mk{width:clamp(34px,2.1vw,48px);height:clamp(34px,2.1vw,48px);border-radius:50%;
+    background:rgba(255,255,255,.14);border:3px solid rgba(255,255,255,.3);
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:clamp(15px,1.1vw,23px)}
+  .face.sel{background:rgba(124,194,43,.28);border-color:var(--green)}
+  .face.sel .mk{background:var(--green);color:#12203f;border-color:var(--green)}
+  .face.ok{background:rgba(46,204,113,.3);border-color:#2ecc71}
+  .face.ok .mk{background:#2ecc71;color:#062b14;border-color:#2ecc71}
+  .face.no{background:rgba(231,76,60,.3);border-color:var(--red)}
+  .face.no .mk{background:var(--red);color:#fff;border-color:var(--red)}
+
+  /* ---------- PIECES ---------- */
+  .pieces{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2vw,40px);width:min(1000px,100%)}
+  .piece{cursor:pointer;background:rgba(255,255,255,.09);border:3px solid rgba(255,255,255,.2);
+    border-radius:22px;padding:clamp(14px,1.6vw,34px);display:flex;flex-direction:column;align-items:center;gap:8px}
+  .piece:hover{background:rgba(255,255,255,.16)}
+  .piece svg,.piece img{width:clamp(140px,15vw,280px);height:clamp(140px,15vw,280px);
+    object-fit:contain;color:#f4f7ff;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.45))}
+  .piece .nm{display:none}
+  .piece.sel{background:rgba(124,194,43,.28);border-color:var(--green)}
+  .piece.ok{background:rgba(46,204,113,.3);border-color:#2ecc71}
+  .piece.no{background:rgba(231,76,60,.3);border-color:var(--red)}
+
+  /* ---------- VERDICT ---------- */
+  .verdict{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(6,12,30,.72);backdrop-filter:blur(3px);z-index:50}
+  .verdict.on{display:flex}
+  .vbox{text-align:center;padding:34px 60px;border-radius:26px;font-size:clamp(24px,2.6vw,52px);font-weight:900;
+    animation:pop .28s ease}
+  .vbox.good{background:linear-gradient(160deg,#2ecc71,#149c4a);color:#04250f;box-shadow:0 0 90px rgba(46,204,113,.6)}
+  .vbox.bad{background:linear-gradient(160deg,#ff7b6b,#c0392b);color:#2b0703;box-shadow:0 0 90px rgba(231,76,60,.55)}
+  .vbox small{display:block;font-size:.45em;font-weight:700;margin-top:10px;opacity:.9}
+  @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* ---------- RESULT ---------- */
+  .big{font-size:clamp(60px,7.5vw,140px);font-weight:900;line-height:1;
+    background:linear-gradient(180deg,#fff,#a6e22e);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .big small{font-size:.35em;-webkit-text-fill-color:#9fb0d8}
+  .medal{font-size:clamp(56px,6vw,110px);text-align:center;line-height:1}
+  .prize{margin-top:18px;font-size:clamp(18px,1.5vw,29px);font-weight:800;color:#ffd76b;text-align:center}
+
+  /* ---------- BOARD ---------- */
+  .board{width:min(1150px,100%)}
+  .podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(10px,1.2vw,22px);align-items:end;margin-bottom:22px}
+  .pod{border-radius:20px;padding:clamp(12px,1.1vw,22px);text-align:center;
+    background:rgba(255,255,255,.08);border:3px solid rgba(255,255,255,.18)}
+  .pod .pl{font-size:clamp(30px,2.8vw,58px);font-weight:900}
+  .pod .pn{font-size:clamp(15px,1.15vw,23px);font-weight:800;line-height:1.2;margin:6px 0 4px}
+  .pod .ps{font-size:clamp(14px,1vw,21px);opacity:.85;font-weight:700}
+  .pod .pp{font-size:clamp(12px,.85vw,17px);margin-top:8px;color:#ffd76b;font-weight:800}
+  .pod.p1{background:linear-gradient(160deg,rgba(255,201,60,.32),rgba(255,201,60,.08));border-color:#ffc93c;padding-top:clamp(20px,2vw,40px)}
+  .pod.p2{border-color:#cfd8e6}
+  .pod.p3{border-color:#e0a06a}
+  .empty{text-align:center;font-size:clamp(17px,1.3vw,26px);opacity:.75;padding:30px}
+  table{width:100%;border-collapse:collapse;font-size:clamp(14px,1.05vw,21px)}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.14)}
+  th{font-size:.85em;text-transform:uppercase;letter-spacing:.6px;opacity:.65;font-weight:800}
+  td.n{text-align:right;font-weight:900;width:80px}
+  td.n.top{color:#ffc93c}
+
+  /* ---------- KEY ---------- */
+  .key{width:min(1400px,100%);font-size:clamp(13px,.9vw,18px);user-select:text}
+  .key .klist{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;align-items:start}
+  .key .k{padding:4px 2px;border-bottom:1px solid rgba(255,255,255,.12);display:grid;
+    grid-template-columns:30px 1fr;gap:2px 10px}
+  .key .k .no{grid-row:1/3;font-weight:900;color:var(--green);font-size:1.15em;padding-top:1px}
+  .key .k .qq{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.72;font-size:.92em}
+  .key .k .aa{font-weight:800;color:#ffd76b}
+  .key .k .ex{display:none;opacity:.55;font-size:.82em;-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .key.exp .k .ex{display:-webkit-box}
+
+  .note{font-size:clamp(13px,.95vw,19px);opacity:.7;text-align:center;margin-top:20px;line-height:1.5}
+  .touch-only{display:none}
+  @media (hover:none) and (pointer:coarse){
+    .kbd-only{display:none}
+    .touch-only{display:inline}
+  }
+  .foot{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:14px;opacity:.4}
+
+  @media (max-width:1000px){ .key .klist{grid-template-columns:1fr} }
+  @media (max-width:820px){
+    .opts.cols2,.opts.two{grid-template-columns:1fr}
+    .faces{grid-template-columns:1fr}
+    .pieces{grid-template-columns:1fr 1fr}
+    .podium{grid-template-columns:1fr}
+  }
+
+  /* ==================================================
+     ТЕЛЕФОН
+     ================================================== */
+  @media (max-width:640px){
+    body{position:fixed;inset:0;width:100%}
+
+    .topbar{padding:8px 12px;gap:10px}
+    .qnum{font-size:14px}.qnum b{font-size:17px}
+    .bar{height:9px}
+    .score{font-size:14px;padding:3px 10px;border-width:2px}
+    .foot{display:none}
+
+    .screen{padding:14px 4vw;justify-content:flex-start}
+    .screen > *{flex-shrink:0}
+
+    .card{border-radius:18px;padding:16px;max-width:100%}
+    h1{font-size:26px}
+    h2{font-size:22px}
+    .lead{font-size:15px;line-height:1.45}
+    .lead.small{font-size:13px}
+    .quizname{font-size:23px;margin:12px 0 16px}
+    .chips{gap:7px}
+    .chip{font-size:12px;padding:6px 12px}
+    .note{font-size:11px;margin-top:14px}
+    .row{gap:10px;margin-top:16px;width:100%}
+    .btn{font-size:17px;padding:15px 22px;border-radius:14px;box-shadow:0 4px 0 #4c8212}
+    .btn.ghost{box-shadow:none;border-width:2px}
+    .btn.small{font-size:14px;padding:12px 16px}
+
+    /* вопрос */
+    .qtext{font-size:21px;line-height:1.25;text-align:left;margin-bottom:10px}
+    .qmeta{gap:8px;margin-bottom:12px}
+    .tag{font-size:11px;padding:5px 11px}
+    .opts{gap:9px;width:100%}
+    .opt{min-height:58px;padding:11px 13px;gap:12px;border-radius:15px;font-size:16px;line-height:1.25}
+    .opt .mark{width:34px;height:34px;font-size:15px;border-width:2px}
+    .opts.cols2,.opts.two{grid-template-columns:1fr}
+
+    /* кнопка «Проверить» прижата к низу экрана */
+    #sQ .row{position:sticky;bottom:0;margin-top:auto;padding:14px 0 2px;
+      background:linear-gradient(180deg,rgba(13,23,48,0),rgba(11,18,42,.94) 45%)}
+    #sQ .row .btn{width:100%;min-height:54px}
+
+    /* фото педагогов — строкой */
+    .faces{width:100%;gap:9px}
+    .face{flex-direction:row;align-items:center;text-align:left;padding:9px;gap:12px;border-radius:15px}
+    .face .pic{width:84px;flex:0 0 84px;aspect-ratio:3/4;border-radius:11px}
+    .face .ph{font-size:38px}
+    .face .nm{flex:1;font-size:15px;text-align:left}
+    .face .mk{order:3;width:34px;height:34px;flex:0 0 34px;font-size:14px;border-width:2px}
+
+    /* шахматные фигуры */
+    .pieces{width:100%;gap:11px}
+    .piece{padding:12px;border-radius:16px}
+    .piece svg,.piece img{width:38vw;height:38vw;max-width:160px;max-height:160px}
+
+    /* регистрация */
+    .reg{gap:13px;width:100%}
+    .reg label{font-size:15px}
+    .reg input{font-size:17px;padding:12px 14px;border-width:2px}
+    .cls{grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:7px}
+    .cls button{min-height:50px;font-size:18px;border-width:2px;border-radius:11px}
+    .err{font-size:13px}
+
+    /* результат */
+    .medal{font-size:54px}
+    .big{font-size:62px}
+    .big small{font-size:.3em}
+    .prize{font-size:17px;margin-top:12px}
+
+    /* таблица */
+    .board{width:100%}
+    .podium{grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+    .pod{padding:10px 6px;border-radius:14px}
+    .pod.p1{padding-top:16px}
+    .pod .pl{font-size:30px}
+    .pod .pn{font-size:12px;line-height:1.15;margin:4px 0 3px;overflow-wrap:anywhere}
+    .pod .ps{font-size:10px}
+    .pod .pp{font-size:9px;margin-top:5px}
+    table{table-layout:fixed;font-size:13px}
+    th,td{padding:8px 4px;overflow-wrap:anywhere;word-break:break-word}
+    th{font-size:10px;letter-spacing:.2px}
+    th:nth-child(1),td:nth-child(1){width:38px}
+    th:nth-child(3),td:nth-child(3){width:46px}
+    th:nth-child(4),td:nth-child(4){width:48px;text-align:right}
+
+    /* ключ */
+    .key{width:100%;font-size:13px}
+    .key .k{padding:6px 2px}
+    .key .k > *{min-width:0;overflow-wrap:anywhere}
+  }
+
+  /* телефон в горизонтали — компактнее */
+  @media (max-height:520px) and (orientation:landscape){
+    .qtext{font-size:18px;margin-bottom:6px}
+    .opt{min-height:46px;padding:8px 12px;font-size:14px}
+    .qmeta{margin-bottom:8px}
+    #sQ .row{padding:8px 0 0}
+    .face .pic{width:60px;flex:0 0 60px}
+    .face .nm{font-size:13px}
+    .piece svg,.piece img{width:22vw;height:22vw;max-width:130px;max-height:130px}
+  }
+
+  @media print{
+    body{background:#fff;color:#000;overflow:visible}
+    .stage{height:auto}
+    .btn,.topbar,.row{display:none}
+    .screen{position:static;display:none;padding:0}
+    .screen.on{display:block}
+    .card,.pod{color:#000;background:#fff;border:1px solid #999;box-shadow:none}
+    .pod .pp{color:#a07000}
+    .key .k .aa{color:#a07000}
+    .key .k .no{color:#3f7a0a}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="topbar" id="topbar">
+    <div class="qnum">Вопрос <b id="tbNum">1</b> / 22</div>
+    <div class="bar"><i id="tbBar"></i></div>
+    <div class="score" id="tbScore">⭐ 0</div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ================= ТИТУЛ ================= -->
+    <section class="screen on" id="sTitle">
+      <div class="card title">
+        <div class="emoji-top">🎉🎈🥳🎊</div>
+        <h1>Дорогие ученики<br>«Усть-Кудинской школы»!</h1>
+        <p class="lead" style="margin-top:16px">
+          В честь Дня рождения ЦОЦ и ГП <b>«Точки роста»</b> предлагаем вам пройти увлекательную викторину.
+          Мы узнаем, кто из вас знает о «Точке роста» больше всего фактов.
+          <b>Первые 3 места получат памятные призы!</b>
+        </p>
+        <div class="quizname">«Что ты знаешь о Точке роста?»</div>
+        <div class="chips">
+          <div class="chip">📝 22 вопроса</div>
+          <div class="chip">⭐ 1 балл за вопрос</div>
+          <div class="chip">🏆 Призы за 1–3 места</div>
+          <div class="chip">✍️ Каждый вводит своё имя и класс</div>
+        </div>
+        <div class="row">
+          <button class="btn" id="bStart">Начать викторину</button>
+          <button class="btn ghost small" id="bBoard">Таблица результатов</button>
+          <button class="btn ghost small" id="bKey">Ключ ответов (учителю)</button>
+        </div>
+        <div class="note">
+          <span class="kbd-only">Управление: <b>1–9</b> — выбрать ответ, <b>Enter</b> / <b>→</b> — проверить или перейти дальше.</span>
+          <span class="touch-only">Нажимайте на вариант ответа пальцем — потом кнопку «Проверить».</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= РЕГИСТРАЦИЯ ================= -->
+    <section class="screen" id="sReg">
+      <h2>✍️ Представься!</h2>
+      <p class="lead small" style="margin:12px 0 22px">Введи своё имя, фамилию и выбери класс</p>
+      <div class="reg">
+        <div>
+          <label>Фамилия и имя</label>
+          <input id="fName" type="text" placeholder="например: Иванов Артём" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <label>Класс</label>
+          <div class="cls" id="clsBox"></div>
+        </div>
+        <div class="err" id="regErr"></div>
+        <div class="row" style="margin-top:4px">
+          <button class="btn" id="bGo">Поехали! →</button>
+          <button class="btn ghost" id="bBack1">← Назад</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ВОПРОС ================= -->
+    <section class="screen" id="sQ">
+      <div class="qtext" id="qText"></div>
+      <div class="qmeta" id="qMeta"></div>
+      <div id="qBody" style="width:100%;display:flex;flex-direction:column;align-items:center"></div>
+      <div class="row">
+        <button class="btn" id="bNext" disabled>Проверить</button>
+      </div>
+    </section>
+
+    <!-- ================= РЕЗУЛЬТАТ ================= -->
+    <section class="screen" id="sRes">
+      <div class="card title" style="max-width:900px">
+        <div class="medal" id="resMedal">🏆</div>
+        <div class="big" id="resScore">0<small> / 22</small></div>
+        <h2 id="resName" style="margin-top:10px"></h2>
+        <p class="lead small" id="resText" style="margin-top:14px"></p>
+        <div class="prize" id="resPrize"></div>
+        <div class="row">
+          <button class="btn" id="bNextPart">Следующий участник →</button>
+          <button class="btn ghost" id="bBoard2">Таблица результатов</button>
+          <button class="btn ghost small" id="bKey2">Ключ ответов</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ТАБЛИЦА ================= -->
+    <section class="screen" id="sBoard">
+      <h2 style="margin-bottom:20px">🏆 Таблица результатов</h2>
+      <div class="board">
+        <div class="podium" id="podium"></div>
+        <table>
+          <thead><tr><th>№</th><th>Участник</th><th>Кл.</th><th style="text-align:right">Баллы</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="row">
+        <button class="btn" id="bAgain">➕ Ещё участник</button>
+        <button class="btn ghost" id="bPrint">🖨 Распечатать</button>
+        <button class="btn ghost small" id="bKey3">Ключ ответов</button>
+        <button class="btn ghost small" id="bWipe">🗑 Очистить всё</button>
+        <button class="btn ghost small" id="bTitle">На главный экран</button>
+      </div>
+    </section>
+
+    <!-- ================= КЛЮЧ ================= -->
+    <section class="screen" id="sKey">
+      <h2 style="margin-bottom:14px">🔑 Ключ ответов <span style="font-size:.5em;opacity:.7">— для учителя</span></h2>
+      <div class="card" style="padding:clamp(12px,1.2vw,26px)"><div class="key" id="keyBox"></div></div>
+      <div class="row">
+        <button class="btn ghost" id="bKeyClose">← Назад</button>
+        <button class="btn ghost small" id="bKeyExp">💬 Показать пояснения</button>
+        <button class="btn ghost small" id="bKeyPrint">🖨 Распечатать ключ</button>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="verdict" id="verdict"><div class="vbox" id="vbox"></div></div>
+  <div class="foot">МКОУ «Усть-Кудинская СОШ» · ЦОЦ и ГП «Точка роста»</div>
+</div>
+
+<script>
+/* =========================================================
+   БАНК ВОПРОСОВ.  type: single | multi | neg | face | piece
+   ========================================================= */
+const KING = { N:'♚', R:'♜', B:'♝', Q:'♛', K:'♚', P:'♟', H:'♞' };
+
+const QUESTIONS = [
+ { type:'single',
+   q:'В какое число и какого года открылась наша «Точка роста»?',
+   o:['27 сентября 2019 года','27 сентября 2020 года','1 сентября 2019 года'], a:[0],
+   exp:'«Точка роста» открылась 27 сентября 2019 года — в самом начале учебного года.' },
+
+ { type:'single',
+   q:'Как расшифровывается ЦОЦ и ГП — полное название «Точки роста»?',
+   o:['Центр образования цифрового и гуманитарного профилей',
+      'Центр открытого и гуманного образования',
+      'Центр обучения и гражданского просвещения'], a:[0],
+   exp:'ЦОЦ и ГП = Центр образования цифрового и гуманитарного профилей.' },
+
+ { type:'single',
+   q:'Сколько лет «Точке роста»?',
+   o:['7 лет','5 лет','10 лет'], a:[0],
+   exp:'Открытие — 27 сентября 2019 года, значит в 2026 году «Точке роста» 7 лет.' },
+
+ { type:'single',
+   q:'Сколько кружков работает в «Точке роста» в этом учебном году?',
+   o:['11 кружков','8 кружков','6 кружков'], a:[0],
+   exp:'Всего 11 кружков. Проверь себя: перечисли их в вопросе №5.' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Какие кружки работают в «Точке роста» в этом учебном году?',
+   o:['«Шахматы»','«Художка»','«Китайский язык»','«Волейбол»','«Фантазия без границ»',
+      '«ИИ-проектирование и роботехника»','«Царство разума»','«Баскетбол»',
+      '«IT — школьник»','«Кружок дизайнера»','«Юные инспектора движения»'], a:[0,1,2,3,4,5,6,7,8,9,10],
+   exp:'Все 11 вариантов верные — так что отмечаем все.' },
+
+ { type:'face',
+   q:'Кто из этих педагогов ведёт кружок «IT — школьник»?',
+   o:['Незамединов А. И.','Бохондоев Е. Н.','Губарева В. В.'], a:[2], photos:1,
+   p:['nezamedinov','bohondoev','gubareva'],
+   exp:'Кружок «IT — школьник» ведёт Губарева Виктория Владимировна.' },
+
+ { type:'single',
+   q:'Проводятся ли в «Точке роста» мастер-классы и экскурсии?',
+   o:['Да, проводятся','Нет, никогда','А что такое экскурсии?'], a:[0],
+   exp:'Да! В «Точке роста» регулярно проходят мастер-классы и экскурсии.' },
+
+ { type:'neg', hint:'Отметь всё, что НЕ входит',
+   q:'Что из перечисленного НЕ входит в процесс изготовления бумажной лозы?',
+   o:['Нарезка бумаги','Скручивание трубочек','Прошивание','Окрашивание','Обработка для эластичности'],
+   a:[2,3],
+   exp:'Лозу делают так: нарезают полоски бумаги, скручивают трубочки и обрабатывают для эластичности. Прошивать и красить её не нужно.' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Какие факты об искусственном интеллекте верные?',
+   o:['ИИ помогает защищать пчёл',
+      'ИИ помогает восстанавливать утраченные произведения искусства',
+      'ИИ может обнаруживать пожары ещё до того, как они станут катастрофой',
+      'У нейросетей бывают «галлюцинации»',
+      'ИИ умеет шутить, не имея чувства юмора'], a:[0,1,2,3,4],
+   exp:'Все пять фактов верные.' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Как квадрокоптеры (дроны) могут помочь человеку в работе и в быту?',
+   o:['Исследование труднодоступных мест: геология, стройка, разведка',
+      'Строительство','Оборона от врага','Спасательные операции'], a:[0,1,2,3],
+   exp:'Все варианты верные.' },
+
+ { type:'single',
+   q:'Сколько шахматных турниров проходит в «Точке роста» за учебный год?',
+   o:['10 турниров','2 турнира','4 турнира'], a:[0],
+   exp:'10 шахматных турниров за учебный год — это traditions «Точки роста».' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Какие виды роботов вы знаете?',
+   o:['Промышленные','Бытовые','Медицинские','Боевые','Роботы-исследователи (космические, геологические)','Игрушки'],
+   a:[0,1,2,3,4,5],
+   exp:'Все шесть видов верные.' },
+
+ { type:'single',
+   q:'Чем ноутбук отличается от нетбука?',
+   o:['Ничем не отличаются','Нетбук можно использовать как планшет: сенсорный экран и маленький размер, но функционал слабее, чем у ноутбука'],
+   a:[1],
+   exp:'Нетбук — это маленький ноутбук с сенсорным экраном; функционал у него слабее.' },
+
+ { type:'single',
+   q:'Визуальный язык и среда программирования, созданные специально для детей и подростков. Программы здесь собираются не из текстового кода, а из разноцветных блоков, которые соединяются как детали конструктора. О чём идёт речь?',
+   o:['Scratch','PyCharm','Eclipse'], a:[0],
+   exp:'Это Scratch. А PyCharm и Eclipse — профессиональные среды для программистов.' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Что развивают занятия баскетболом у ребёнка?',
+   o:['Координацию и моторику','Выносливость','Вкус','Силу и гибкость','Любовь к искусству','Зрение'],
+   a:[0,1,3,5],
+   exp:'Верно: координация и моторика, выносливость, сила и гибкость, зрение.' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Какие средства массовой информации вы знаете?',
+   o:['Телевидение','Радио','Интернет','Телефон','Мессенджеры и социальные сети'], a:[0,1,2,4],
+   exp:'Телефон — не средство массовой информации, а связь. Остальные варианты верны.' },
+
+ { type:'single',
+   q:'Кто ведёт кружок «ИИ-проектирование и роботехника»?',
+   o:['Бохондоев Ефим Николаевич','Носовка Александр Александрович','Незамединов Артём Иванович'], a:[2],
+   exp:'Кружок «ИИ-проектирование и роботехника» ведёт Незамединов Артём Иванович.' },
+
+ { type:'single',
+   q:'Что ведёт Тарасова Юлия Анатольевна?',
+   o:['Кружок «Фантазия без границ»','Кружок «Художка»','Секция «Баскетбол»'], a:[0],
+   exp:'Тарасова Юлия Анатольевна ведёт кружок «Фантазия без границ».' },
+
+ { type:'multi', hint:'Верных ответов несколько — отметь все!',
+   q:'Назови виды творчества из бумаги — самые доступные и увлекательные.',
+   o:['Конструирование из бумаги','Скрапбукинг','Аппликация'], a:[0,2],
+   exp:'Верно: конструирование из бумаги и аппликация.' },
+
+ { type:'single',
+   q:'Парусное или гребное морское (речное) судно, предназначенное для гражданских и военных целей, в шахматной игре называется…',
+   o:['Ладья','Пешка','Королева'], a:[0],
+   exp:'В шахматах ладья изображает башню на корабле — то есть судно.' },
+
+ { type:'single',
+   q:'Как называется самая сильная шахматная фигура?',
+   o:['Королева','Ферзь','Король'], a:[0],
+   exp:'Самая сильная фигура — королева (в русских шахматах), она ходит в любую сторону.' },
+
+ { type:'piece',
+   q:'Он бывает индийский и африканский, а в шахматах эта фигура называется…',
+   o:['Конь','Слон'], a:[1], p:['chess-knight','chess-bishop'],
+   exp:'Индийский слон и африканский слон — в шахматах это слон.' }
+];
+
+const TOTAL = QUESTIONS.length;
+
+/* ======================= SVG-ФИГУРЫ ======================= */
+const SVG_KNIGHT = `<svg viewBox="0 0 120 140" aria-hidden="true">
+  <path d="M22 106h76a6 6 0 0 1 6 6v6H16v-6a6 6 0 0 1 6-6z"/>
+  <path d="M14 118h92a6 6 0 0 1 6 6v8a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4v-8a6 6 0 0 1 6-6z"/>
+  <path d="M34 108c-4-13-1-25 7-35l6-8c-10-4-21-8-28-12-4-3-3-8 2-10l12-4c4-8 10-14 16-18l4-14 8 12 5-7 5 12c11 6 17 18 15 30-2 12-14 24-22 35-4 6-5 12-5 19z"/>
+  <path d="M71 24c11 6 17 18 15 30-2 12-14 24-22 35" fill="none" stroke="#101b3a" stroke-opacity=".3" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="36" cy="47" r="3.4" fill="#101b3a"/>
+</svg>`;
+
+const SVG_BISHOP = `<svg viewBox="0 0 120 140" aria-hidden="true">
+  <circle cx="60" cy="12" r="7"/>
+  <path d="M60 20c14 16 22 28 22 41 0 11-8 17-14 21H52c-6-4-14-10-14-21 0-13 8-25 22-41z"/>
+  <path d="M60 36l-8 15 8 7 8-7z" fill="#101b3a" opacity=".35"/>
+  <path d="M42 84h36l6 9H36z"/>
+  <path d="M48 93h24c6 0 9 6 11 12l4 12H33l4-12c2-6 5-12 11-12z"/>
+  <path d="M20 117h80a6 6 0 0 1 6 6v5a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3v-5a6 6 0 0 1 6-6z"/>
+</svg>`;
+
+/* ======================= СОСТОЯНИЕ ======================= */
+const LS_KEY = 'tochka_rosta_quiz_v1';
+let state = { idx:0, picked:[], checked:false, correct:0, name:'', cls:'', people:[], back:'sTitle' };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('on')); $(id).classList.add('on'); };
+const loadPeople = () => { try { state.people = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch(e){ state.people = []; } };
+const savePeople = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state.people)); } catch(e){} };
+loadPeople();
+
+/* ======================= ЭКРАН: ТАБЛИЦА ======================= */
+function renderBoard(){
+  const list = [...state.people].sort((a,b) => b.score - a.score || a.ts - b.ts);
+  $('podium').innerHTML = '';
+  const places = [[1,'🥇','1 место','p1'],[2,'🥈','2 место','p2'],[3,'🥉','3 место','p3']];
+  for (const [i,em,txt,cls] of places){
+    const p = list[i-1];
+    const d = document.createElement('div');
+    d.className = 'pod '+cls;
+    d.innerHTML = `<div class="pl">${em}</div>
+      <div class="pn">${p ? esc(p.name) : '—'}</div>
+      <div class="ps">${p ? esc(p.cls)+' класс · '+p.score+' из '+TOTAL : 'место пока свободно'}</div>
+      <div class="pp">${p && i<=3 ? '🏅 ПАМЯТНЫЙ ПРИЗ' : ''}</div>`;
+    $('podium').appendChild(d);
+  }
+  $('tbody').innerHTML = list.length ? list.map((p,i) =>
+    `<tr><td class="n ${i<3?'top':''}">${i+1}</td><td>${esc(p.name)}</td><td>${esc(p.cls)}</td>
+     <td class="n ${i<3?'top':''}">${p.score}</td></tr>`).join('')
+    : `<tr><td colspan="4" class="empty">Участников пока нет. Нажми «Ещё участник».</td></tr>`;
+  return list;
+}
+
+/* ======================= ЭКРАН: КЛЮЧ ======================= */
+function renderKey(){
+  $('keyBox').innerHTML = `<div class="klist">` + QUESTIONS.map((q,i) => {
+    const a = q.a.map(k => q.o[k]).join(' + ');
+    return `<div class="k"><div class="no">${i+1}.</div>
+      <div class="qq">${esc(q.q)}</div>
+      <div><span class="aa">✔ ${esc(a)}</span>${q.exp ? `<div class="ex">${esc(q.exp)}</div>` : ''}</div></div>`;
+  }).join('') + `</div>`;
+}
+
+/* ======================= РЕГИСТРАЦИЯ ======================= */
+const CLASSES = ['1','2','3','4','5','6','7','8','9','10','11'];
+$('clsBox').innerHTML = CLASSES.map(c => `<button type="button" data-c="${c}">${c}</button>`).join('');
+$('clsBox').addEventListener('click', e => {
+  const b = e.target.closest('button[data-c]'); if(!b) return;
+  state.cls = b.dataset.c;
+  $('clsBox').querySelectorAll('button').forEach(x => x.classList.toggle('sel', x === b));
+});
+function startReg(){ state.cls = ''; $('clsBox').querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+  $('fName').value=''; $('regErr').textContent=''; show('sReg'); setTimeout(()=>$('fName').focus(),120); }
+$('bStart').onclick = startReg;
+$('bBack1').onclick = () => show('sTitle');
+$('fName').addEventListener('keydown', e => { if(e.key==='Enter') beginQuiz(); });
+$('bGo').onclick = beginQuiz;
+
+function beginQuiz(){
+  const n = $('fName').value.trim();
+  if(n.length < 2){ $('regErr').textContent = '✏️ Напиши, пожалуйста, фамилию и имя.'; return; }
+  if(!state.cls){ $('regErr').textContent = '👉 Выбери свой класс.'; return; }
+  state.name = n; state.idx = 0; state.correct = 0; state.picked = []; state.checked = false;
+  show('sQ'); $('topbar').classList.add('on'); renderQ();
+}
+
+/* ======================= ВОПРОС ======================= */
+function renderQ(){
+  const q = QUESTIONS[state.idx];
+  state.picked = []; state.checked = false;
+  $('qText').textContent = q.q;
+  $('tbNum').textContent = state.idx + 1;
+  $('tbBar').style.width = (state.idx / TOTAL * 100) + '%';
+  $('tbScore').textContent = '⭐ ' + state.correct;
+
+  const meta = [];
+  if (state.name) meta.push(`<div class="tag">✍️ ${esc(state.name)}, ${esc(state.cls)} класс</div>`);
+  if (q.type==='multi' || q.type==='neg') meta.push(`<div class="tag grey">${esc(q.hint||'Можно выбрать несколько')}</div>`);
+  if (q.type==='neg') meta.push(`<div class="tag grey">Верных ответов: ${q.a.length}</div>`);
+  $('qMeta').innerHTML = meta.join('');
+
+  let html = '';
+  if (q.type === 'face'){
+    html = `<div class="faces">` + q.o.map((nm,i) =>
+      `<button class="face" data-i="${i}">
+         <div class="pic"><img src="фото/${esc(q.p[i])}.jpg" alt=""
+             onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<div class=ph>👤</div>');">
+         </div>
+         <div class="nm">${esc(nm)}</div>
+         <div class="mk">${i+1}</div>
+       </button>`).join('') + `</div>`;
+  } else if (q.type === 'piece'){
+    html = `<div class="pieces">
+        <button class="piece" data-i="0"><img src="фото/${esc(q.p[0])}.jpg" alt="" onerror="this.style.display='none';"></button>
+        <button class="piece" data-i="1"><img src="фото/${esc(q.p[1])}.jpg" alt="" onerror="this.style.display='none';"></button>
+      </div>`;
+  } else {
+    const cols = (q.o.length === 3 && q.type === 'single') ? ' two' : (q.type==='multi'||q.type==='neg' ? ' cols2' : '');
+    html = `<div class="opts${cols}">` + q.o.map((o,i) =>
+      `<button class="opt" data-i="${i}"><span class="mark">${i+1}</span><span>${esc(o)}</span></button>`).join('') + `</div>`;
+  }
+  $('qBody').innerHTML = html;
+  $('bNext').disabled = true;
+  $('bNext').textContent = 'Проверить';
+  $('verdict').classList.remove('on');
+}
+
+$('qBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-i]'); if(!b || state.checked) return;
+  const q = QUESTIONS[state.idx], i = +b.dataset.i;
+  const multi = (q.type==='multi' || q.type==='neg');
+  if (multi){
+    const k = state.picked.indexOf(i);
+    if (k < 0) state.picked.push(i); else state.picked.splice(k,1);
+  } else { state.picked = [i]; $('qBody').querySelectorAll('[data-i]').forEach(x=>x.classList.remove('sel')); }
+  b.classList.toggle('sel', multi ? state.picked.includes(i) : true);
+  if (!multi) $('qBody').querySelectorAll('[data-i]').forEach(x => x.classList.toggle('sel', x === b));
+  $('bNext').disabled = state.picked.length === 0;
+});
+
+$('bNext').onclick = () => {
+  const q = QUESTIONS[state.idx];
+  if (!state.checked){
+    if (!state.picked.length) return;
+    state.checked = true;
+    const ok = state.picked.length === q.a.length && q.a.every(v => state.picked.includes(v));
+    if (ok) state.correct++;
+    $('tbScore').textContent = '⭐ ' + state.correct;
+    $('bNext').textContent = (state.idx === TOTAL-1) ? 'Итоги →' : 'Дальше →';
+
+    $('qBody').querySelectorAll('[data-i]').forEach(el => {
+      const i = +el.dataset.i;
+      el.classList.remove('sel');
+      if (q.a.includes(i)){ el.classList.add('ok'); if(!state.picked.includes(i)) el.classList.add('miss'); }
+      else if (state.picked.includes(i)) el.classList.add('no');
+    });
+    const vb = $('vbox');
+    vb.className = 'vbox ' + (ok ? 'good' : 'bad');
+    vb.innerHTML = (ok ? '✔ Верно!' : '✘ Не совсем')
+                 + `<small>${esc(q.exp || '')}</small>`;
+    $('verdict').classList.add('on');
+    setTimeout(()=>$('verdict').classList.remove('on'), 2600);
+  } else {
+    $('verdict').classList.remove('on');
+    if (state.idx < TOTAL-1){ state.idx++; renderQ(); }
+    else finish();
+  }
+};
+
+function finish(){
+  $('topbar').classList.remove('on');
+  const me = { name: state.name, cls: state.cls, score: state.correct, ts: Date.now() };
+  state.people.push(me);
+  savePeople();
+  const pct = state.correct / TOTAL;
+  $('resName').textContent = `${state.name}, ${state.cls} класс`;
+  $('resScore').innerHTML = `${state.correct}<small> / ${TOTAL}</small>`;
+  const board = [...state.people].sort((a,b)=> b.score-a.score || a.ts-b.ts);
+  const place = board.findIndex(p => p.ts === me.ts) + 1;
+  $('resMedal').textContent = state.correct === TOTAL ? '👑' : (state.correct >= 19 ? '🥇' : (state.correct >= 15 ? '🎖' : '💪'));
+  let txt = place>0 && place<=3 ? 'Ты на подиуме — приз уже твой!' :
+            (pct>=0.7 ? 'Отличный результат! Так держать!' :
+             (pct>=0.5 ? 'Хорошо! Есть куда расти — приходи в кружки!' : 'С возвращением в «Точку роста» — узнаем больше!'));
+  $('resText').textContent = txt;
+  $('resPrize').textContent = (place>0 && place<=3) ? '🏅 ПАМЯТНЫЙ ПРИЗ' : '';
+  show('sRes');
+}
+
+/* ======================= НАВИГАЦИЯ ======================= */
+$('bNextPart').onclick = startReg;
+$('bAgain').onclick   = startReg;
+$('bBoard').onclick = $('bBoard2').onclick = () => { renderBoard(); show('sBoard'); };
+$('bKey').onclick = $('bKey2').onclick = $('bKey3').onclick = () => { renderKey(); state.back = current(); show('sKey'); };
+$('bKeyClose').onclick = () => show(state.back);
+$('bPrint').onclick = () => window.print();
+$('bKeyPrint').onclick = () => window.print();
+$('bKeyExp').onclick = e => {
+  const on = $('keyBox').classList.toggle('exp');
+  e.target.textContent = on ? '💬 Скрыть пояснения' : '💬 Показать пояснения';
+};
+$('bTitle').onclick = () => show('sTitle');
+$('bWipe').onclick = () => {
+  if (confirm('Очистить все результаты участников? Это нельзя отменить.')) {
+    state.people = []; savePeople(); renderBoard();
+  }
+};
+function current(){ const el = document.querySelector('.screen.on'); return el ? el.id : 'sTitle'; }
+
+document.addEventListener('keydown', e => {
+  const scr = current();
+  if (scr === 'sQ'){
+    if (e.key >= '1' && e.key <= '9'){
+      const els = $('qBody').querySelectorAll('[data-i]');
+      const el = els[+e.key - 1];
+      if (el) el.click();
+    }
+    if (e.key === 'Enter' || e.key === 'ArrowRight' || (e.key === ' ' && state.checked)){
+      e.preventDefault(); if(!$('bNext').disabled) $('bNext').click();
+    }
+  } else if (scr === 'sReg' && e.key === 'Enter'){ beginQuiz(); }
+  else if (scr === 'sTitle' && e.key === 'Enter'){ startReg(); }
+});
+
+renderKey();
+
+/* Офлайн-режим (работает и на GitHub Pages, и с файла) */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Викторина «Что ты знаешь о Точке роста?»",
+  "short_name": "Точка роста",
+  "description": "Викторина ко Дню рождения ЦОЦ и ГП «Точка роста» — МКОУ «Усть-Кудинская СОШ»",
+  "lang": "ru",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1730",
+  "theme_color": "#7cc22b",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
