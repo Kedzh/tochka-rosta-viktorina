@@ -50,21 +50,36 @@ function sheet_() {
   return sh;
 }
 
-// Создать шапку. Запустите один раз вручную.
-function setup() {
-  const sh = sheet_();
+// Проверяет, что шапка есть, и создаёт её, если нет.
+// Вызывается перед каждой записью — поэтому запускать setup вручную
+// необязательно: шапка появится сама при первом ответе.
+function ensureHeader_(sh) {
+  const cur = sh.getRange(1, 1, 1, HEADER.length).getValues()[0];
+  const already = cur.filter(v => String(v).trim() !== '').length > 0;
+  if (already) return false;
+
   sh.getRange(1, 1, 1, HEADER.length).setValues([HEADER]);
   sh.getRange(1, 1, 1, HEADER.length)
     .setFontWeight('bold').setBackground('#e8f5e9');
   sh.setFrozenRows(1);
   sh.autoResizeColumns(1, HEADER.length);
-  return 'Готово: лист «' + sh.getName() + '», шапка создана.';
+  return true;
+}
+
+// Создать шапку вручную — на случай, если хотите сделать это заранее.
+function setup() {
+  const sh = sheet_();
+  const created = ensureHeader_(sh);
+  return created
+    ? 'Готово: лист «' + sh.getName() + '», шапка создана.'
+    : 'Шапка уже была на месте.';
 }
 
 // Проверка: GET https://адрес/exec покажет, что приёмник жив.
 function doGet() {
   try {
-    const n = sheet_().getLastRow() - 1;
+    const sh = sheet_();
+    const n = Math.max(0, sh.getLastRow() - 1);
     return ContentService
       .createTextOutput('Приёмник работает. Ответов в таблице: ' + n)
       .setMimeType(ContentService.MimeType.TEXT);
@@ -82,7 +97,10 @@ function doPost(e) {
 
     if (!d.name) throw new Error('не передано имя');
 
-    sheet_().appendRow([
+    const sh = sheet_();
+    ensureHeader_(sh);
+
+    sh.appendRow([
       String(d.ts || ''),
       String(d.cls || ''),
       String(d.name).slice(0, 80),
