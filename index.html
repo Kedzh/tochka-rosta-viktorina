@@ -717,7 +717,7 @@ function renderQ(){
   if (q.type === 'face'){
     html = `<div class="faces">` + q.o.map((nm,i) =>
       `<button class="face" data-i="${i}">
-         <div class="pic"><img src="фото/${esc(q.p[i])}.jpg" alt=""
+         <div class="pic"><img src="img/${esc(q.p[i])}.jpg" alt=""
              onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<div class=ph>👤</div>');">
          </div>
          <div class="nm">${esc(nm)}</div>
@@ -725,8 +725,8 @@ function renderQ(){
        </button>`).join('') + `</div>`;
   } else if (q.type === 'piece'){
     html = `<div class="pieces">
-        <button class="piece" data-i="0"><img src="фото/${esc(q.p[0])}.jpg" alt="" onerror="this.style.display='none';"></button>
-        <button class="piece" data-i="1"><img src="фото/${esc(q.p[1])}.jpg" alt="" onerror="this.style.display='none';"></button>
+        <button class="piece" data-i="0"><img src="img/${esc(q.p[0])}.jpg" alt="" onerror="this.style.display='none';"></button>
+        <button class="piece" data-i="1"><img src="img/${esc(q.p[1])}.jpg" alt="" onerror="this.style.display='none';"></button>
       </div>`;
   } else {
     const cols = (q.o.length === 3 && q.type === 'single') ? ' two' : (q.type==='multi'||q.type==='neg' ? ' cols2' : '');

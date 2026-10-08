@@ -5,11 +5,11 @@ const ASSETS = [
   './index.html',
   './manifest.webmanifest',
   './favicon.svg',
-  './фото/nezamedinov.jpg',
-  './фото/bohondoev.jpg',
-  './фото/gubareva.jpg',
-  './фото/chess-knight.jpg',
-  './фото/chess-bishop.jpg'
+  './img/nezamedinov.jpg',
+  './img/bohondoev.jpg',
+  './img/gubareva.jpg',
+  './img/chess-knight.jpg',
+  './img/chess-bishop.jpg'
 ];
 
 self.addEventListener('install', e => {
