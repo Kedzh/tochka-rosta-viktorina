@@ -411,6 +411,7 @@
         <div class="big" id="resScore">0<small> / 22</small></div>
         <h2 id="resName" style="margin-top:10px"></h2>
         <p class="lead small" id="resText" style="margin-top:14px"></p>
+        <p class="lead small" id="resTime" style="margin-top:6px;opacity:.75"></p>
         <div class="sendbox" id="sendBox">
           <div class="sendstat" id="sendStat">Отправляем результат…</div>
           <div class="sendmanual" id="sendManual" hidden>
@@ -655,6 +656,7 @@ function beginQuiz(){
   if(n.length < 2){ $('regErr').textContent = '✏️ Напиши, пожалуйста, фамилию и имя.'; return; }
   if(!state.cls){ $('regErr').textContent = '👉 Выбери свой класс.'; return; }
   state.name = n; state.idx = 0; state.correct = 0; state.picked = []; state.checked = false;
+  state.started = Date.now();
   show('sQ'); $('topbar').classList.add('on'); renderQ();
 }
 
@@ -747,10 +749,13 @@ function stamp(){
   const d=new Date(), p=n=>String(n).padStart(2,'0');
   return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());
 }
+const mmss = s => Math.floor(s/60)+' мин '+String(Math.round(s)%60).padStart(2,'0')+' сек';
 
 async function sendResult(){
-  const payload={ name:state.name, cls:state.cls, score:state.correct, total:TOTAL, ts:stamp() };
-  const line = payload.ts+' | '+payload.cls+' класс | '+payload.name+' | '+payload.score+' из '+payload.total;
+  const payload={ name:state.name, cls:state.cls, score:state.correct, total:TOTAL,
+                  secs:Math.round(state.secs), ts:stamp() };
+  const line = payload.ts+' | '+payload.cls+' класс | '+payload.name+' | '
+            + payload.score+' из '+payload.total+' | '+mmss(payload.secs);
   const stat=$('sendStat'), box=$('sendManual');
   stat.className='sendstat'; box.hidden=true; $('bRetry').hidden=true;
 
@@ -778,6 +783,7 @@ async function sendResult(){
 
 function finish(){
   $('topbar').classList.remove('on');
+  state.secs = (Date.now() - state.started) / 1000;
   const pct = state.correct / TOTAL;
   $('resName').textContent = state.name+', '+state.cls+' класс';
   $('resScore').innerHTML = state.correct+'<small> / '+TOTAL+'</small>';
@@ -787,6 +793,7 @@ function finish(){
     (pct>=0.8 ? 'Отличный результат! Так держать!' :
      (pct>=0.5 ? 'Хорошо! Есть куда расти — приходи в кружки!' :
                  'С возвращением в «Точку роста» — узнаем больше!'));
+  $('resTime').textContent = '⏱ Время прохождения: '+ mmss(state.secs);
   show('sRes');
   sendResult();
 }
